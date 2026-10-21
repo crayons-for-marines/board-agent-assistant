@@ -1,9 +1,9 @@
 {
   "manifestVersion": 1,
-  "id": "board-release",
+  "id": "ado-board-agentic-assistant",
   "publisher": "dflatdeveloper",
   "version": "0.1.0",
-  "name": "Board Release",
+  "name": "ADO Board Item Agentic Yeoman",
   "description": "Turns release Issue state changes into the release branch, the next Issue, the PR and the release record.",
   "public": false,
   "categories": ["Azure Boards"],

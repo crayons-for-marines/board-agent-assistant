@@ -1,6 +1,6 @@
-# board-release documentation
+# ADO Board Item Agentic Yeoman documentation
 
-`board-release` is a private Azure DevOps extension. It turns state changes on release Issues on the `dflat-websites` board into the release branch, the next Issue, the pull request and the release record for the `professional` website.
+The `ado-board-agentic-assistant` extension ("ADO Board Item Agentic Yeoman") is a private Azure DevOps extension. It turns state changes on release Issues on the `dflat-websites` board into the release branch, the next Issue, the pull request and the release record for the `professional` website.
 
 | Page | What it covers |
 |---|---|

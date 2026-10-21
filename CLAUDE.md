@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-`board-release`: a private Azure DevOps extension (TypeScript, `azure-devops-extension-sdk` / `azure-devops-extension-api`, React for the form panel). It reacts to State changes on release Issues (`professional-X.Y.Z`) on the `dflat-websites` board and drives the `professional` repo: Doing creates the release branch and the next Issue; Done checks Tasks, opens/approves/completes the PR, attaches a `.patch`, and comments a commit ↔ Task summary. The design and build plan is in `board-release-plan.md`; user-facing docs are in `docs/`.
+`ado-board-agentic-assistant` (display name "ADO Board Item Agentic Yeoman"): a private Azure DevOps extension (TypeScript, `azure-devops-extension-sdk` / `azure-devops-extension-api`, React for the form panel). It reacts to State changes on release Issues (`professional-X.Y.Z`) on the `dflat-websites` board and drives the `professional` repo: Doing creates the release branch and the next Issue; Done checks Tasks, opens/approves/completes the PR, attaches a `.patch`, and comments a commit ↔ Task summary. The design and build plan is in `board-release-plan.md`; user-facing docs are in `docs/`.
 
 ## Commands
 
