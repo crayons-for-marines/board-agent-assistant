@@ -26,7 +26,7 @@ npm install
 
 ## Publishing
 
-1. Put your publisher ID in the `publisher` field of `vss-extension.json` (it ships as `REPLACE_WITH_PUBLISHER_ID`).
+1. Check that the `publisher` field of `vss-extension.json` is the Marketplace publisher ID, `dflatdeveloper`.
 2. Make the PAT available to the publish script:
 
    ```sh
@@ -44,7 +44,7 @@ npm install
 
 ## Testing a change
 
-There are no automated tests yet. To check a change end to end, publish a new version and run a release on the board:
+Every PR into `master` runs `azure-pipelines.yml` (`npm ci`, typecheck, build) as a required build-validation check. There are no automated tests yet. To check a change end to end, publish a new version and run a release on the board:
 
 1. Move a release Issue to Doing and confirm the branch and the next Issue are created.
 2. Commit a Task's change to the branch with `AB#<task>` in the subject and move the Task to Done.

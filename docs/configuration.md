@@ -34,7 +34,7 @@ The next Issue always bumps the patch number. For a minor or major release, rena
 
 | Field | Value | Note |
 |---|---|---|
-| `publisher` | `REPLACE_WITH_PUBLISHER_ID` | Set to your Marketplace publisher ID before publishing |
+| `publisher` | `dflatdeveloper` | The Marketplace publisher ID |
 | `version` | `0.1.0` | Bump on every publish |
 | `public` | `false` | Private; shared only with `dflat-websites` |
 | `scopes` | `vso.work_write`, `vso.code_write`, `vso.build` | Changing scopes makes the org admin re-authorize the extension |
