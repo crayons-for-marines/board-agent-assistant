@@ -12,7 +12,7 @@
 parameters:
   - name: branches # "*" means all branches
     type: object
-    default: [main]
+    default: [master]
   - name: includeTags
     type: boolean
     default: true

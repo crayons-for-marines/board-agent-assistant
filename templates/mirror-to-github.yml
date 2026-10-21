@@ -20,7 +20,7 @@ parameters:
     default: GitHub
   - name: branches # branch names; "*" means all branches
     type: object
-    default: [main]
+    default: [master]
   - name: includeTags
     type: boolean
     default: true
