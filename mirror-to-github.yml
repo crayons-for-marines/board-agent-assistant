@@ -1,0 +1,54 @@
+# Push-mirror this Azure Repos repo to GitHub. All work runs in ADO; GitHub
+# only receives pushes. The steps live in templates/mirror-to-github.yml.
+#
+# One-time setup:
+#   1. Install the Azure Pipelines GitHub App on the target GitHub repo only,
+#      and create a GitHub service connection that uses it.
+#   2. Set the resources entry to the GitHub repo and service connection name.
+#   3. The GitHub repo needs at least one commit before the first run.
+#   4. Do the first run manually with forcePush = true.
+#   5. Approve the service connection permission prompt on the first run.
+
+parameters:
+  - name: branches # "*" means all branches
+    type: object
+    default: [master]
+  - name: includeTags
+    type: boolean
+    default: true
+  - name: forcePush
+    type: boolean
+    default: false
+  - name: dryRun
+    type: boolean
+    default: false
+
+# Triggers can't read parameters, so trigger on everything and let the
+# template skip refs that aren't selected.
+trigger:
+  batch: true
+  branches:
+    include: ["*"]
+  tags:
+    include: ["*"]
+
+pr: none
+
+resources:
+  repositories:
+    - repository: github_mirror
+      type: github
+      name: crayons-for-marines/board-agent-assistant
+      endpoint: github.com_crayons-for-marines
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - template: templates/mirror-to-github.yml
+    parameters:
+      mirrorRepository: github_mirror
+      branches: ${{ parameters.branches }}
+      includeTags: ${{ parameters.includeTags }}
+      forcePush: ${{ parameters.forcePush }}
+      dryRun: ${{ parameters.dryRun }}

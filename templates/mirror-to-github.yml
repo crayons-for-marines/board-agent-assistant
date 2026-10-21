@@ -1,0 +1,117 @@
+# Steps template: push-mirror an Azure Repos repo (`self` by default) to a GitHub repo.
+#
+# The caller declares the GitHub repo as a repository resource (resources can't
+# live in a template) and passes its alias as `mirrorRepository`. ADO refs are
+# fetched with System.AccessToken; pushes reuse the credential that the GitHub
+# checkout persists (the Azure Pipelines GitHub App), so no token is ever read
+# or printed here.
+#
+# CI runs (IndividualCI / BatchedCI) skip unless the triggering ref is selected,
+# because triggers can't read parameters.
+
+parameters:
+  - name: mirrorRepository # alias of the caller's GitHub repository resource
+    type: string
+  - name: sourceRepository # Azure Repos repo to mirror; an alias or `self`
+    type: string
+    default: self
+  - name: displayName # step name is "Mirror to <displayName>"
+    type: string
+    default: GitHub
+  - name: branches # branch names; "*" means all branches
+    type: object
+    default: [master]
+  - name: includeTags
+    type: boolean
+    default: true
+  - name: forcePush
+    type: boolean
+    default: false
+  - name: dryRun
+    type: boolean
+    default: false
+
+steps:
+  - checkout: ${{ parameters.sourceRepository }}
+    fetchDepth: 0
+    path: source
+
+  - checkout: ${{ parameters.mirrorRepository }}
+    fetchDepth: 0
+    persistCredentials: true
+    path: mirror
+
+  - bash: |
+      set -euo pipefail
+
+      src="$PIPELINE_WORKSPACE/source"
+      mirror="$PIPELINE_WORKSPACE/mirror"
+      read -ra wanted <<<"$BRANCHES" # git branch names can't contain spaces
+      all=false
+      for b in "${wanted[@]}"; do [[ "$b" == "*" ]] && all=true; done
+
+      # Skip CI runs for refs this mirror doesn't cover.
+      if [[ "$BUILD_REASON" == *CI ]]; then
+        case "$BUILD_SOURCEBRANCH" in
+          refs/tags/*)
+            if [[ "$INCLUDE_TAGS" != True ]]; then
+              echo "Triggered by tag $BUILD_SOURCEBRANCH and includeTags is false; nothing to do."
+              exit 0
+            fi ;;
+          refs/heads/*)
+            ref="${BUILD_SOURCEBRANCH#refs/heads/}"
+            if [[ "$all" != true ]] && ! printf '%s\n' "${wanted[@]}" | grep -qxF -- "$ref"; then
+              echo "Triggered by branch $ref, which isn't selected; nothing to do."
+              exit 0
+            fi ;;
+        esac
+      fi
+
+      # Fetch every ADO branch and tag. The header goes in through GIT_CONFIG_*
+      # so the token never appears on a command line or in the log.
+      GIT_CONFIG_COUNT=1 \
+      GIT_CONFIG_KEY_0=http.extraheader \
+      GIT_CONFIG_VALUE_0="AUTHORIZATION: bearer $SYSTEM_ACCESSTOKEN" \
+        git -C "$src" fetch --quiet --prune origin \
+          '+refs/heads/*:refs/remotes/origin/*' '+refs/tags/*:refs/tags/*'
+
+      if [[ "$all" == true ]]; then
+        refs="$(git -C "$src" for-each-ref --format='%(refname:lstrip=3)' refs/remotes/origin)"
+        wanted=()
+        while read -r b; do [[ -n "$b" && "$b" != HEAD ]] && wanted+=("$b"); done <<<"$refs"
+      fi
+
+      plus=""
+      [[ "$FORCE_PUSH" == True ]] && plus="+"
+      fetch_specs=()
+      push_specs=()
+      for b in "${wanted[@]}"; do
+        if git -C "$src" show-ref --verify --quiet "refs/remotes/origin/$b"; then
+          fetch_specs+=("+refs/remotes/origin/$b:refs/ado/heads/$b")
+          push_specs+=("${plus}refs/ado/heads/$b:refs/heads/$b")
+        else
+          echo "##vso[task.logissue type=warning]Branch '$b' doesn't exist in Azure Repos; skipping it."
+        fi
+      done
+      if [[ "$INCLUDE_TAGS" == True ]]; then
+        fetch_specs+=('+refs/tags/*:refs/ado/tags/*')
+        push_specs+=("${plus}refs/ado/tags/*:refs/tags/*")
+      fi
+      if (( ${#push_specs[@]} == 0 )); then
+        echo "##vso[task.logissue type=warning]No branches or tags selected to mirror."
+        exit 0
+      fi
+
+      # Copy the selected refs into the GitHub checkout, then push with the
+      # credential its checkout persisted.
+      git -C "$mirror" fetch --quiet --no-tags "$src" "${fetch_specs[@]}"
+      dry=()
+      [[ "$DRY_RUN" == True ]] && dry=(--dry-run)
+      git -C "$mirror" push "${dry[@]}" --porcelain origin "${push_specs[@]}"
+    displayName: Mirror to ${{ parameters.displayName }}
+    env:
+      SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+      BRANCHES: ${{ join(' ', parameters.branches) }}
+      INCLUDE_TAGS: ${{ parameters.includeTags }}
+      FORCE_PUSH: ${{ parameters.forcePush }}
+      DRY_RUN: ${{ parameters.dryRun }}
