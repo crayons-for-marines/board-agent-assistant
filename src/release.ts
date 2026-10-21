@@ -167,7 +167,7 @@ export async function approveRelease(ctx: ReleaseContext, issueId: number): Prom
         title: `Release ${title}`,
         description: `Release ${title}. Approved by setting #${issueId} to Done.`,
         workItemRefs: [{ id: String(issueId) } as never],
-      } as GitPullRequest,
+      } as never,
       REPOSITORY,
       ctx.project,
     );
@@ -231,7 +231,8 @@ async function reopen(ctx: ReleaseContext, issueId: number, reason: string): Pro
 
 async function comment(ctx: ReleaseContext, issueId: number, lines: string[]): Promise<void> {
   const html = lines.map((line) => (line ? `<p>${escapeHtml(line)}</p>` : "")).join("");
-  await ctx.work.addComment({ text: html } as never, ctx.project, issueId);
+  // This client has no add-comment call; a System.History update is a Discussion comment.
+  await ctx.work.updateWorkItem([{ op: "add", path: "/fields/System.History", value: html }], issueId, ctx.project);
 }
 
 async function branchExists(ctx: ReleaseContext, branch: string): Promise<boolean> {

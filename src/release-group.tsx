@@ -71,7 +71,7 @@ async function loadRelease(): Promise<Release | typeof NOT_RELEASE> {
       }));
   }
 
-  const comments = await ctx.work.getComments(ctx.project, id, 50, undefined, undefined, undefined, CommentSortOrder.Desc);
+  const comments = await ctx.work.getComments(id, ctx.project, undefined, 50, CommentSortOrder.Desc);
   const verifyComment = comments.comments.find((c) => /verify-deploy/i.test(c.text));
   const verify = verifyComment ? stripHtml(verifyComment.text) : "Not run yet";
 

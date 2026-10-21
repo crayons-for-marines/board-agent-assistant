@@ -26,7 +26,7 @@ npm install
 
 ## Publishing
 
-1. Put your publisher ID in the `publisher` field of `vss-extension.json` (it ships as `REPLACE_WITH_PUBLISHER_ID`).
+1. Check that the `publisher` field of `vss-extension.json` is the Marketplace publisher ID, `dflatdeveloper`.
 2. Make the PAT available to the publish script:
 
    ```sh

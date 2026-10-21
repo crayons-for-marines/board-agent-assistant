@@ -1,7 +1,7 @@
 {
   "manifestVersion": 1,
   "id": "board-release",
-  "publisher": "REPLACE_WITH_PUBLISHER_ID",
+  "publisher": "dflatdeveloper",
   "version": "0.1.0",
   "name": "Board Release",
   "description": "Turns release Issue state changes into the release branch, the next Issue, the PR and the release record.",
