@@ -1,0 +1,22 @@
+# PR validation for master: the build-validation branch policy queues this
+# pipeline for every PR. Azure Repos ignores `pr:` triggers, so the policy is
+# what runs it; `trigger: none` keeps pushes from queueing it again.
+trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: 20.x
+    displayName: Use Node.js 20
+
+  - script: npm ci
+    displayName: Install
+
+  - script: npm run typecheck
+    displayName: Typecheck
+
+  - script: npm run build
+    displayName: Build
