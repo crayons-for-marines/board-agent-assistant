@@ -38,7 +38,7 @@ resources:
   repositories:
     - repository: github_mirror
       type: github
-      name: crayons-for-marines/board-agent-assistant-
+      name: crayons-for-marines/board-agent-assistant
       endpoint: <GITHUB_SERVICE_CONNECTION> # PLACEHOLDER: service connection name
 
 pool:
