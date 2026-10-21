@@ -1,0 +1,27 @@
+{
+  "name": "board-release",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Azure DevOps extension that turns release Issue state changes into branches, PRs and release records.",
+  "scripts": {
+    "build": "node build.mjs",
+    "typecheck": "tsc --noEmit",
+    "package": "npm run build && tfx extension create --manifest-globs vss-extension.json --output-path out",
+    "publish": "npm run build && tfx extension publish --manifest-globs vss-extension.json --share-with dflat-websites --token $ADO_MARKETPLACE_PAT --output-path out"
+  },
+  "dependencies": {
+    "azure-devops-extension-api": "4.236.0",
+    "azure-devops-extension-sdk": "4.0.2",
+    "diff": "5.2.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/diff": "5.2.1",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "esbuild": "0.23.0",
+    "tfx-cli": "0.17.0",
+    "typescript": "5.5.4"
+  }
+}

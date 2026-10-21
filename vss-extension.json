@@ -1,0 +1,55 @@
+{
+  "manifestVersion": 1,
+  "id": "board-release",
+  "publisher": "REPLACE_WITH_PUBLISHER_ID",
+  "version": "0.1.0",
+  "name": "Board Release",
+  "description": "Turns release Issue state changes into the release branch, the next Issue, the PR and the release record.",
+  "public": false,
+  "categories": ["Azure Boards"],
+  "targets": [{ "id": "Microsoft.VisualStudio.Services" }],
+  "scopes": ["vso.work_write", "vso.code_write", "vso.build"],
+  "files": [{ "path": "dist", "addressable": true }],
+  "contributions": [
+    {
+      "id": "release-observer",
+      "type": "ms.vss-work-web.work-item-notifications",
+      "description": "Runs the Doing and Done release actions when an Issue's State changes on the form.",
+      "targets": ["ms.vss-work-web.work-item-form"],
+      "properties": { "uri": "dist/observer.html" }
+    },
+    {
+      "id": "start-release",
+      "type": "ms.vss-web.action",
+      "description": "Moves a release Issue to Doing and runs the Doing action.",
+      "targets": ["ms.vss-work-web.work-item-context-menu", "ms.vss-work-web.work-item-toolbar-menu"],
+      "properties": {
+        "text": "Start release",
+        "uri": "dist/actions.html",
+        "registeredObjectId": "start-release"
+      }
+    },
+    {
+      "id": "approve-release",
+      "type": "ms.vss-web.action",
+      "description": "Moves a release Issue to Done and runs the Done action.",
+      "targets": ["ms.vss-work-web.work-item-context-menu", "ms.vss-work-web.work-item-toolbar-menu"],
+      "properties": {
+        "text": "Approve release",
+        "uri": "dist/actions.html",
+        "registeredObjectId": "approve-release"
+      }
+    },
+    {
+      "id": "release-group",
+      "type": "ms.vss-work-web.work-item-form-group",
+      "description": "Shows the release branch, PR, patch, pipeline runs and verify result.",
+      "targets": ["ms.vss-work-web.work-item-form"],
+      "properties": {
+        "name": "Release",
+        "uri": "dist/release-group.html",
+        "height": 260
+      }
+    }
+  ]
+}
