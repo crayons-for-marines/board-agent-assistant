@@ -1,0 +1,59 @@
+# Delete the source branch of every completed PR once it's fully merged into
+# master. Catches PRs completed without "Delete source branch after merging".
+#
+# A branch is deleted only if it was the source of a completed PR, has no
+# active PR, and `git cherry` finds no commit missing from master (so squash
+# and cherry-picked merges count as merged).
+#
+# One-time setup: give "<project> Build Service (<org>)" the repository
+# permission "Force push (rewrite history, delete branches)" = Allow.
+
+trigger:
+  batch: true
+  branches:
+    include: [master]
+
+pr: none
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - checkout: self
+    fetchDepth: 0
+    persistCredentials: true
+
+  - bash: |
+      set -euo pipefail
+
+      api="${SYSTEM_COLLECTIONURI}${SYSTEM_TEAMPROJECTID}/_apis/git/repositories/${BUILD_REPOSITORY_ID}/pullrequests"
+      prs() {
+        curl -fsS -H "Authorization: Bearer $SYSTEM_ACCESSTOKEN" \
+          "$api?searchCriteria.status=$1&\$top=500&api-version=7.1" |
+          python3 -c 'import json,sys; [print(p["sourceRefName"].removeprefix("refs/heads/")) for p in json.load(sys.stdin)["value"]]' |
+          sort -u
+      }
+      completed="$(prs completed)"
+      active="$(prs active)"
+
+      git fetch --quiet --prune origin
+      deleted=0
+      while read -r branch; do
+        [[ -n "$branch" && "$branch" != master ]] || continue
+        git show-ref --verify --quiet "refs/remotes/origin/$branch" || continue
+        if grep -qxF -- "$branch" <<<"$active"; then
+          echo "Keeping $branch: it has an active PR."
+          continue
+        fi
+        if git cherry origin/master "origin/$branch" | grep -q '^+'; then
+          echo "##vso[task.logissue type=warning]Keeping $branch: it has commits that aren't on master."
+          continue
+        fi
+        git push --quiet origin --delete "$branch"
+        echo "Deleted $branch"
+        deleted=$((deleted + 1))
+      done <<<"$completed"
+      echo "Deleted $deleted merged branch(es)."
+    displayName: Delete merged branches
+    env:
+      SYSTEM_ACCESSTOKEN: $(System.AccessToken)

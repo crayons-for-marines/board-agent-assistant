@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/prune-merged-branches.sh 2>/dev/null || true",
+            "timeout": 60,
+            "statusMessage": "Pruning merged branches"
+          }
+        ]
+      }
+    ]
+  }
+}
