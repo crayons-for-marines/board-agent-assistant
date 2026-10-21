@@ -4,7 +4,7 @@
 # One-time setup:
 #   1. Install the Azure Pipelines GitHub App on the target GitHub repo only,
 #      and create a GitHub service connection that uses it.
-#   2. Replace the <PLACEHOLDERS> under resources.
+#   2. Replace the <GITHUB_SERVICE_CONNECTION> placeholder under resources.
 #   3. The GitHub repo needs at least one commit before the first run.
 #   4. Do the first run manually with forcePush = true.
 #   5. Approve the service connection permission prompt on the first run.
@@ -38,7 +38,7 @@ resources:
   repositories:
     - repository: github_mirror
       type: github
-      name: <GITHUB_OWNER>/<GITHUB_REPO> # PLACEHOLDER
+      name: crayons-for-marines/board-agent-assistant-
       endpoint: <GITHUB_SERVICE_CONNECTION> # PLACEHOLDER: service connection name
 
 pool:
