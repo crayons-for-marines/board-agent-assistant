@@ -56,4 +56,5 @@ To debug, open the browser's developer tools on the work item form. Each contrib
 ## Conventions
 
 - Work goes on a branch and reaches `master` through a PR, like the website repo.
+- `master` and all tags are mirrored to GitHub (`crayons-for-marines/board-agent-assistant`) by the `mirror-to-github.yml` pipeline after every push. The GitHub copy only receives pushes; make changes in Azure Repos. To mirror other branches, or to overwrite GitHub after a history rewrite, run the pipeline manually and set `branches` (`"*"` for all) or `forcePush`.
 - Board and Repos logic belongs in `release.ts`, which stays free of SDK imports so the webhook backstop can reuse it. SDK and UI code belongs in the entry points and `host.ts`.
